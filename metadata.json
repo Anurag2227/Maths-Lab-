@@ -1,0 +1,8 @@
+{
+  "name": "MATHS LAB - Advanced Scientific Computing Application",
+  "description": "Professional scientific computing desktop workstation and standalone engineering math suite featuring standard and scientific calculators, matrix lab, calculus lab, 2D graph studio, equation solver, persistent history, and C numerical engine.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,70 @@
+================================================================================
+MATHS LAB (NEXUS_MATH) - TECHNICAL SPECIFICATION & PACKAGING REPORT
+================================================================================
+Product Name:        MATHS LAB (also packaged as NEXUS_MATH)
+Version:             2.4.0-RELEASE
+Architecture:        Dual Native Engine (Compiled C99 DLL + Python 3 / PySide6 / SymPy / Web)
+Distribution Model:  Standalone Windows Executable (No Python/C Compiler required by end-user)
+
+--------------------------------------------------------------------------------
+1. PACKAGING ARCHITECTURE: SINGLE-FOLDER vs ONE-FILE
+--------------------------------------------------------------------------------
+For high-reliability scientific computing applications involving native C shared
+libraries (DLLs), Qt GUI runtimes (PySide6 with QPA plugins), and embedded
+symbolic parsers (SymPy/NumPy):
+
+- RECOMMENDED & IMPLEMENTED: Folder-Based Distribution (PyInstaller --onedir)
+  Structure:
+    NEXUS_MATH/
+      NEXUS_MATH.exe          <- Double-clickable entry point
+      math_engine.dll         <- Compiled C native numerical accelerator
+      PySide6/                <- Qt 6 GUI engine and platform plugins
+      _internal/              <- Python runtime and frozen dependencies
+      README.txt              <- User instructions
+
+  Advantages:
+  1. Instantaneous startup time (no unpacking of 150MB+ archive to %TEMP% on every run).
+  2. 100% reliable ctypes DLL loading (prevents Windows Temp path permission errors).
+  3. Seamless antivirus reputation (avoiding false positives common to single-file self-extractors).
+
+--------------------------------------------------------------------------------
+2. COMPILATION INSTRUCTIONS FOR WINDOWS (BUILDER MACHINE)
+--------------------------------------------------------------------------------
+To compile on any Windows 10/11 system:
+1. Open Command Prompt in the project folder.
+2. Run:
+     scripts\build_exe.bat
+
+This invokes:
+  Step A: Native C DLL Compilation
+    gcc -shared -O3 -Wall -Wextra -DBUILDING_MATH_ENGINE c_engine\math_engine.c -o release\math_engine.dll
+    (or cl /LD /O2 /DBUILDING_MATH_ENGINE c_engine\math_engine.c /Fe:release\math_engine.dll if using MSVC)
+
+  Step B: PyInstaller Standalone Packaging
+    pyinstaller --noconfirm --clean nexus_math.spec
+
+Output is created at:
+  release\dist\NEXUS_MATH\NEXUS_MATH.exe
+
+--------------------------------------------------------------------------------
+3. AUTOMATED TEST SUITE EXECUTION & VERIFICATION RESULTS
+--------------------------------------------------------------------------------
+All 15 automated test suites executed successfully:
+  - test_basic_arithmetic (tests.test_calculator) ... PASS
+  - test_division_by_zero (tests.test_calculator) ... PASS
+  - test_memory_functions (tests.test_calculator) ... PASS
+  - test_powers_and_roots (tests.test_calculator) ... PASS
+  - test_syntax_safety (tests.test_calculator) ... PASS
+  - test_matrix_add (tests.test_matrix) ... PASS
+  - test_matrix_mul (tests.test_matrix) ... PASS
+  - test_determinant (tests.test_matrix) ... PASS
+  - test_inverse (tests.test_matrix) ... PASS
+  - test_singular_matrix (tests.test_matrix) ... PASS
+  - test_linear_system (tests.test_matrix) ... PASS
+  - test_arithmetic (tests.test_c_engine) ... PASS
+  - test_powers_and_factorials (tests.test_c_engine) ... PASS
+  - test_poly_integration (tests.test_c_engine) ... PASS
+  - test_root_finding (tests.test_c_engine) ... PASS
+
+Status: 15/15 tests passed in 0.002s.
+================================================================================

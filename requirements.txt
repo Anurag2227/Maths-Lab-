@@ -1,0 +1,9 @@
+# MATHS LAB / NEXUS_MATH Dependency Manifest
+# Compatible with Python 3.9, 3.10, 3.11, 3.12 (64-bit Windows)
+
+PySide6>=6.5.0
+numpy>=1.24.0
+sympy>=1.12.0
+matplotlib>=3.7.0
+pyinstaller>=6.0.0
+pytest>=7.3.0
