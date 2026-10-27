@@ -54,6 +54,13 @@ export const ScientificCalculator: React.FC<ScientificCalculatorProps> = ({
         setResultDisplay('0');
       } else if (['+', '-', '×', '÷', '*', '/', '^', '%'].includes(token.trim())) {
         setExpression(resultDisplay + token);
+      } else if (
+        ['sqrt(', 'root(', 'cbrt(', 'sin(', 'cos(', 'tan(', 'asin(', 'acos(', 'atan(',
+         'sinh(', 'cosh(', 'tanh(', 'asinh(', 'acosh(', 'atanh(', 'ln(', 'log10(',
+         'log2(', 'exp(', '10^(', '(', 'pi', 'e', 'tau', 'phi'].includes(token.trim())
+      ) {
+        // Multiplies the previous result by the function or constant: e.g. 16777216 × sqrt(
+        setExpression(resultDisplay + ' × ' + token);
       } else {
         setExpression(token);
       }
@@ -113,6 +120,8 @@ export const ScientificCalculator: React.FC<ScientificCalculatorProps> = ({
         insertToken(e.key);
       } else if (e.key === '^') {
         insertToken('^');
+      } else if (e.key === 'r' || e.key === 's') {
+        insertToken('sqrt(');
       } else if (e.key === 'Enter' || e.key === '=') {
         e.preventDefault();
         handleEvaluate();

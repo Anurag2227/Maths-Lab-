@@ -53,8 +53,12 @@ export const StandardCalculator: React.FC<StandardCalculatorProps> = ({
       if (displayValue === 'Mathematical Error') {
         setExpression(val);
         setDisplayValue(val);
-      } else if (['+', '-', '×', '÷', '*', '/', '^', '%'].includes(val)) {
-        setExpression(displayValue + ' ' + val + ' ');
+      } else if (['+', '-', '×', '÷', '*', '/', '^', '%'].includes(val.trim())) {
+        // Continuing calculation with operator
+        setExpression(displayValue + ' ' + val.trim() + ' ');
+      } else if (val.trim() === '(' || val.trim() === 'sqrt(') {
+        // Chaining with parenthesis or sqrt function: e.g. 16777216 × sqrt(
+        setExpression(displayValue + ' × ' + val.trim());
       } else {
         setExpression(val);
         setDisplayValue(val);
@@ -83,10 +87,12 @@ export const StandardCalculator: React.FC<StandardCalculatorProps> = ({
   };
 
   const handleReciprocal = () => {
+    setErrorMsg(null);
     const target = parseFloat(displayValue || expression || '0');
     if (isNaN(target)) return;
     if (target === 0) {
-      setErrorMsg('Cannot divide by zero');
+      setErrorMsg('Mathematical Error: Cannot divide by zero');
+      setDisplayValue('Mathematical Error');
       return;
     }
     const res = 1 / target;
@@ -98,18 +104,30 @@ export const StandardCalculator: React.FC<StandardCalculatorProps> = ({
   };
 
   const handleSqrt = () => {
-    const target = parseFloat(displayValue || expression || '0');
-    if (isNaN(target)) return;
-    if (target < 0) {
-      setErrorMsg('Square root of negative number is undefined');
+    setErrorMsg(null);
+    // Case 1: Result was just calculated (e.g. 8^8 = 16777216)
+    // User wants to write root in its multiple: e.g. 16777216 × sqrt(
+    if (justCalculated && displayValue && displayValue !== 'Mathematical Error') {
+      setExpression(displayValue + ' × sqrt(');
+      setJustCalculated(false);
       return;
     }
-    const res = Math.sqrt(target);
-    const formatted = mathCore.formatResult(res);
-    setDisplayValue(formatted);
-    setExpression(`sqrt(${target})`);
-    onRecordHistory('Standard', `sqrt(${target})`, formatted);
-    setJustCalculated(true);
+
+    // Case 2: Expression ends with an operator, opening parenthesis, or is empty
+    // e.g. "16777216 × " or "( " or ""
+    const trimmed = expression.trim();
+    const endsWithOp =
+      !trimmed ||
+      ['+', '-', '×', '÷', '*', '/', '^', '%', '('].some((op) => trimmed.endsWith(op));
+
+    if (endsWithOp) {
+      setExpression((prev) => prev + 'sqrt(');
+      return;
+    }
+
+    // Case 3: User entered a number and clicked √x
+    // Chain with multiplication so user can enter root value without directly rooting (e.g. 16777216 × sqrt()
+    setExpression((prev) => prev + ' × sqrt(');
   };
 
   const handleNegate = () => {
@@ -160,6 +178,10 @@ export const StandardCalculator: React.FC<StandardCalculatorProps> = ({
         handleInput(' ÷ ');
       } else if (e.key === '(' || e.key === ')') {
         handleInput(e.key);
+      } else if (e.key === '^') {
+        handleInput('^');
+      } else if (e.key === 'r' || e.key === 's') {
+        handleSqrt();
       } else if (e.key === 'Enter' || e.key === '=') {
         e.preventDefault();
         handleCalculate();

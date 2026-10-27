@@ -102,4 +102,11 @@ assertThrows(() => math.evaluate('log10(-5)'), 'log10 of negative');
 math.setContext({ angleUnit: 'degrees' });
 assertThrows(() => math.evaluate('tan(90)'), 'tan(90°) asymptote');
 
+console.log("\n=== Testing User Case: 8^8 and 16777216 × sqrt(2) ===");
+const p8 = math.evaluate('8^8');
+assertEqual(p8, 16777216, '8^8 = 16777216');
+const autoClosed = math.autoCloseBrackets('16777216 × sqrt(2');
+assertEqual(math.evaluate(autoClosed), 16777216 * Math.SQRT2, '16777216 × sqrt(2');
+assertEqual(math.evaluate('16777216 sqrt(2)'), 16777216 * Math.SQRT2, 'implicit 16777216 sqrt(2)');
+
 console.log("\nALL TESTS PASSED WITH 100% SUCCESS!");
